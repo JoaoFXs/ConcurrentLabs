@@ -29,13 +29,13 @@ public class ReservaService {
      * ConcurrentHashMap para thread-safe
      **/
     ConcurrentHashMap<Long, Semaphore> semaphores = new ConcurrentHashMap<>();
-
+    /** Repo reserva **/
     @Autowired
     private ReservaRepository reservaRepository;
-
+    /** Repo laboratorio **/
     @Autowired
     private LaboratorioRepository labRepository;
-
+    /** Repo professor **/
     @Autowired
     private ProfessorRepository profRepository;
 
@@ -44,13 +44,21 @@ public class ReservaService {
         /** Procura o laboratorio pelo id, se não achar, entra em exception**/
         Laboratorio lab = labRepository.findById(laboratorioId)
                 .orElseThrow(() -> new LabNotFound("Laboratorio não encontrado pelo id " + laboratorioId));
+        /** Procura o Professor pelo id, se não achar, entra em exception**/
+        Professor prof = profRepository.findById(professorId).orElseThrow(() -> new ProfNotFound("Professor não encontrado pelo id " + professorId));
 
         /** Operação atômica que, se existir semáforo para o laborátorio, retorna o existente. Se não, cria novo semáforo com capcidade = numero computadores**/
         Semaphore semaphore = semaphores.computeIfAbsent(laboratorioId,
                 id -> new Semaphore(lab.getCapacidadeComputadores())
         );
-        Professor prof = profRepository.findById(professorId).orElseThrow(() -> new ProfNotFound("Professor não encontrado pelo id " + professorId));
 
+        /** Controle de acesso utilizando o semaforo:
+         *   1) Tenta obter uma permissão do semaforo
+         *   2) Se conseguir (semaforo > 0): Decrementa o contador interno do semáforo, continua o fluxo da reserva
+         *   3) Se não conseguir (semaforo = 0): Retorna um aviso falando que a capacidade de computadores do laboratorio excedeu.
+         *   4)
+         *
+         * **/
         if (semaphore.tryAcquire()) {
             Reserva novaReserva = new Reserva();
             novaReserva.setDataHora(dataHora);
