@@ -12,7 +12,6 @@ services:
       POSTGRES_DB: concurrentlabs
     volumes:
       - ./data:/var/lib/postgresql/data
-
   pgadmin:
     image: dpage/pgadmin4
     restart: always
