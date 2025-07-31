@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:latest
+    container_name: postgres_container_concurrentlabs
+    restart: always
+    ports:
+      - "5440:5440"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: concurrentlabs
+    volumes:
+      - ./data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+    ports:
+      - "15440:80"
+    depends_on:
+      - db
