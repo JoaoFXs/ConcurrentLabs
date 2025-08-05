@@ -38,6 +38,7 @@ public class ReservaService {
     /** Repo professor **/
     @Autowired
     private ProfessorRepository profRepository;
+    /** Serviço para processamento de lote em 5 em 5**/
     @Autowired
     private ProcessamentoLoteService processamentoLoteService;
 
@@ -68,6 +69,7 @@ public class ReservaService {
             novaReserva.setProfessor(prof);
             novaReserva.setStatus(StatusReserva.PENDENTE);
             Reserva reserva =  reservaRepository.save(novaReserva);
+            /** Adicionar reserva no processamento de lote**/
             processamentoLoteService.adicionarReservaLote(reserva);
             return reserva;
 
