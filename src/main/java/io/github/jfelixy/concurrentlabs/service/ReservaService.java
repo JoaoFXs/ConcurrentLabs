@@ -38,6 +38,8 @@ public class ReservaService {
     /** Repo professor **/
     @Autowired
     private ProfessorRepository profRepository;
+    @Autowired
+    private ProcessamentoLoteService processamentoLoteService;
 
     @Transactional
     private Reserva criarReserva(Long laboratorioId, Long professorId, LocalDateTime dataHora) {
@@ -65,7 +67,10 @@ public class ReservaService {
             novaReserva.setLaboratorio(lab);
             novaReserva.setProfessor(prof);
             novaReserva.setStatus(StatusReserva.PENDENTE);
-            return reservaRepository.save(novaReserva);
+            Reserva reserva =  reservaRepository.save(novaReserva);
+            processamentoLoteService.adicionarReservaLote(reserva);
+            return reserva;
+
         } else {
             throw new CapacidadeExcedidaException("Capacidade de" + lab.getCapacidadeComputadores() + "do laborátorio excedida, não há computadores disponiveis. Tente novamente mais tarde!");
         }

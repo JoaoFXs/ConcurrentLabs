@@ -30,7 +30,7 @@ public class ProcessamentoLoteService {
         this.barrier = new CyclicBarrier(5,this::processarLote);
     }
 
-    private void adicionarReservaLote(Reserva reserva){
+    public  void adicionarReservaLote(Reserva reserva){
         reservasPendentes.add(reserva);
         try {
             barrier.await();//Aguarda até a barreira ciclica romper em 5
