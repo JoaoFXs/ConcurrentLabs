@@ -2,10 +2,10 @@ spring:
   application:
     name: concurrentlabs
   datasource:
-    url: jdbc:postgressql://localhost:5440/concurrentlabs
+    url: jdbc:postgresql://localhost:5440/concurrentlabs
     username: admin
     password: admin
-    driver-class-name: org.postgreesql.Driver
+    driver-class-name: org.postgresql.Driver
     hikari:
       auto-commit: false
   jpa:
