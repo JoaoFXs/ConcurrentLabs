@@ -14,6 +14,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Professor {
+    public Professor(String nome, String email, String matricula) {
+        this.nome = nome;
+        this.email = email;
+        this.matricula = matricula;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
