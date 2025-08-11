@@ -14,6 +14,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Laboratorio {
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,5 +27,9 @@ public class Laboratorio {
     @OneToMany(mappedBy = "laboratorio")
     private List<Reserva> reservas;
 
+    public Laboratorio(String nome, int capacidadeComputadores) {
+        this.nome = nome;
+        this.capacidadeComputadores = capacidadeComputadores;
+    }
 
 }
