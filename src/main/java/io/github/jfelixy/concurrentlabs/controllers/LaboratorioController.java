@@ -5,7 +5,6 @@ import io.github.jfelixy.concurrentlabs.dto.request.LaboratorioRequest;
 import io.github.jfelixy.concurrentlabs.dto.request.response.LaboratorioResponse;
 import io.github.jfelixy.concurrentlabs.service.LaboratorioService;
 import io.github.joaofxs.fake_requisitions.bean.FakeRequisitions;
-import io.github.joaofxs.fake_requisitions.config.FakeRequisitionsAutoConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,13 +21,16 @@ import java.util.Map;
 @RequestMapping("/lab")
 public class LaboratorioController {
 
-    @Autowired
-    private FakeRequisitions fakeRequisitions;
+
+     private  final FakeRequisitions fakeRequisitions;
 
 
     @Autowired
     private LaboratorioService labService;
-
+@Autowired
+    public LaboratorioController(FakeRequisitions fakeRequisitions) {
+        this.fakeRequisitions = fakeRequisitions;
+    }
 
 
     @PostMapping
@@ -39,7 +41,7 @@ public class LaboratorioController {
     }
     @PostMapping("/generateLabs")
     private ResponseEntity<List<String>> generateValues() throws Exception {
-        Map<String,String> campos = Map.of();
+        Map<String, String> campos = new HashMap<>();
         campos.put("nome", fakeRequisitions.educator().course());
         campos.put("capacidade", String.valueOf(fakeRequisitions.number().numberBetween(0,30)));
 
