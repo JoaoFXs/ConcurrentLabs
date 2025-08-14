@@ -6,6 +6,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.time.format.DateTimeFormatter;
+
 @Service
 public class NotificacaoService {
 
@@ -23,8 +25,23 @@ public class NotificacaoService {
         /** Seta assunto **/
         message.setSubject("Confirmação de Reserva - Laboratório " + reserva.getLaboratorio().getNome());
         /** Seta texto **/
-        message.setText(gerarCorpoTexto());
+        message.setText(gerarCorpoEmail(reserva));
         mailSender.send(message);
+    }
+
+    private String gerarCorpoEmail(Reserva reserva) {
+        return String.format(
+                "Olá, Professor(a) %s!\n\n" +
+                        "Sua reserva foi confirmada:\n\n" +
+                        "Laboratório: %s\n" +
+                        "Data/Horário: %s\n" +
+                        "Computadores reservados: %d\n\n" +
+                        "Atenciosamente,\nEquipe de Reservas da Universidade",
+                reserva.getProfessor().getNome(),
+                reserva.getLaboratorio().getNome(),
+                reserva.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                reserva.getLaboratorio().getCapacidadeComputadores()
+        );
     }
 
 }
