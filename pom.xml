@@ -65,7 +65,7 @@
 		<dependency>
 			<groupId>io.github.joaofxs</groupId>
 			<artifactId>fake-requisitions</artifactId>
-			<version>0.0.21</version>
+			<version>0.1.9</version>
 		</dependency>
 	</dependencies>
 
