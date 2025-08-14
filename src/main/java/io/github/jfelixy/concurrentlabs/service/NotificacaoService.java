@@ -18,7 +18,7 @@ public class NotificacaoService {
         this.mailSender = mailSender;
     }
 
-    public void enviarEmailSimples(Reserva reserva){
+    public void enviarConfirmacao(Reserva reserva){
         SimpleMailMessage message = new SimpleMailMessage();
         /** Seta destinatario **/
         message.setTo(reserva.getProfessor().getEmail());
