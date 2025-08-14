@@ -8,8 +8,6 @@ import java.time.LocalDateTime;
 
 
 public record ReservaRequest (
-     Long reservaId,
      Long laboratorioId,
-     Long professorId,
-     LocalDateTime dataHora
+     Long professorId
 ){}
