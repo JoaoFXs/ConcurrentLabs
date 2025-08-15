@@ -39,7 +39,6 @@ public class ReservaController {
      */
     @PostMapping
     public ResponseEntity criarReserva(@RequestBody @Valid ReservaRequest request){
-
         Reserva reserva = reservaService.criarReserva(request.laboratorioId(),
                                                       request.professorId(),
                                                       LocalDateTime.now());
