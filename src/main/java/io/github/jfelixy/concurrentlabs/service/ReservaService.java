@@ -63,16 +63,20 @@ public class ReservaService {
          *
          * **/
         if (semaphore.tryAcquire()) {
-            Reserva novaReserva = new Reserva();
-            novaReserva.setDataHora(dataHora);
-            novaReserva.setLaboratorio(lab);
-            novaReserva.setProfessor(prof);
-            novaReserva.setStatus(StatusReserva.PENDENTE);
-            Reserva reserva =  reservaRepository.save(novaReserva);
-            /** Adicionar reserva no processamento de lote**/
-            processamentoLoteService.adicionarReservaLote(reserva);
-            return reserva;
-
+            try {
+                Reserva novaReserva = new Reserva();
+                novaReserva.setDataHora(dataHora);
+                novaReserva.setLaboratorio(lab);
+                novaReserva.setProfessor(prof);
+                novaReserva.setStatus(StatusReserva.PENDENTE);
+                Reserva reserva = reservaRepository.save(novaReserva);
+                /** Adicionar reserva no processamento de lote**/
+                processamentoLoteService.adicionarReservaLote(reserva);
+                return reserva;
+            } catch (Exception e) {
+                semaphore.release(); // Libera se falhar
+                throw e;
+            }
         } else {
             throw new CapacidadeExcedidaException("Capacidade de" + lab.getCapacidadeComputadores() + "do laborátorio excedida, não há computadores disponiveis. Tente novamente mais tarde!");
         }
