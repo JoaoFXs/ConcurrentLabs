@@ -19,7 +19,8 @@ public class Professor {
         this.email = email;
         this.matricula = matricula;
     }
-
+    @Version
+    private Long version;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
