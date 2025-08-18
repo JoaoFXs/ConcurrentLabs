@@ -71,7 +71,8 @@ public class ReservaService {
                 novaReserva.setStatus(StatusReserva.PENDENTE);
                 Reserva reserva = reservaRepository.save(novaReserva);
                 /** Adicionar reserva no processamento de lote**/
-                processamentoLoteService.adicionarReservaLote(reserva);
+                processamentoLoteService.adicionarReservaLote(novaReserva);
+
                 return reserva;
             } catch (Exception e) {
                 semaphore.release(); // Libera se falhar
