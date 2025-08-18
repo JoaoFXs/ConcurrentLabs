@@ -43,7 +43,7 @@ public class GenerateJsonsController {
         campos.put("nome", () -> fakeRequisitions.name().firstName());
         campos.put("email", () -> fakeRequisitions.internet().emailAddress());
         campos.put("matricula", () -> fakeRequisitions.number().numberBetween(1000,9999));
-        List<String> jsons = fakeRequisitions.generateJsons(30, campos);
+        List<String> jsons = fakeRequisitions.generateJsons(5, campos);
 
         fakeRequisitions.sendRequisition(jsons);
         return ResponseEntity.created(URI.create("/lab/generateProfessor")).body(jsons);
