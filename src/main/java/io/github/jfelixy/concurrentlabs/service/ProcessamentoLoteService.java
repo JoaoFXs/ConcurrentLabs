@@ -3,6 +3,7 @@ package io.github.jfelixy.concurrentlabs.service;
 
 import io.github.jfelixy.concurrentlabs.domain.model.Reserva;
 import io.github.jfelixy.concurrentlabs.domain.model.enums.StatusReserva;
+import io.github.jfelixy.concurrentlabs.exceptions.FalhaProcessamentoLoteException;
 import io.github.jfelixy.concurrentlabs.exceptions.RecursoNotFound;
 import io.github.jfelixy.concurrentlabs.repository.ReservaRepository;
 import jakarta.annotation.PostConstruct;
@@ -75,8 +76,8 @@ public class ProcessamentoLoteService {
             reservaAtualizada.setStatus(StatusReserva.CONFIRMADA);
             reservaRepository.save(reservaAtualizada);
             notificacaoService.enviarConfirmacao(reservaAtualizada);
-        } catch (Exception e) {
-            System.err.println("Erro processando reserva " + reserva.getId() + ": " + e.getMessage());
+        } catch (FalhaProcessamentoLoteException e) {
+            throw  new FalhaProcessamentoLoteException("Erro processando reserva " + reserva.getId() + ": " + e.getMessage());
         }
     }
     /** Desliga o scheduler quando a aplicação é encerrada, evitando "threads zumbis" **/

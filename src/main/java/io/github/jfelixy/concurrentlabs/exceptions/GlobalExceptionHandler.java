@@ -37,4 +37,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
+    @ExceptionHandler(FalhaProcessamentoLoteException.class)
+    public ResponseEntity<ErrorResponse> handleFalhaProcessamentoLote(FalhaProcessamentoLoteException ex, HttpServletRequest request){
+        ErrorResponse error = new ErrorResponse();
+        error.setTimestamp(LocalDateTime.now());
+        error.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        error.setError(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+        error.setMessage(ex.getMessage());
+        error.setPath(request.getRequestURI());
+        error.setErrorCode("FALHA_PROCESSAMENTO_LOTE");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
 }
