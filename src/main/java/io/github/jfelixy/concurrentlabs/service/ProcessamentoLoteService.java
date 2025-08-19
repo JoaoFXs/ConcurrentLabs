@@ -77,7 +77,7 @@ public class ProcessamentoLoteService {
             reservaRepository.save(reservaAtualizada);
             notificacaoService.enviarConfirmacao(reservaAtualizada);
         } catch (FalhaProcessamentoLoteException e) {
-            throw  new FalhaProcessamentoLoteException("Erro processando reserva " + reserva.getId() + ": " + e.getMessage());
+            System.err.println("Erro processando reserva " + reserva.getId() + ": " + e.getMessage());
         }
     }
     /** Desliga o scheduler quando a aplicação é encerrada, evitando "threads zumbis" **/
