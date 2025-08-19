@@ -67,7 +67,7 @@ public class GlobalExceptionHandler {
         error.setTimestamp(LocalDateTime.now());
         error.setStatus(HttpStatus.BAD_REQUEST.value());
         error.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
-        error.setMessage("Erro de validação");
+        error.setMessage(ex.getMessage());
         error.setPath(request.getRequestURI());
         error.setErrorCode("DADOS_INVALIDOS");
         error.setDetails(errors);
@@ -94,7 +94,7 @@ public class GlobalExceptionHandler {
         error.setTimestamp(LocalDateTime.now());
         error.setStatus(HttpStatus.BAD_REQUEST.value());
         error.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
-        error.setMessage("Erro de validação");
+        error.setMessage(ex.getMessage());
         error.setPath(request.getRequestURI());
         error.setErrorCode("DADOS_INVALIDOS");
         error.setDetails(errors);
@@ -110,7 +110,7 @@ public class GlobalExceptionHandler {
         error.setTimestamp(LocalDateTime.now());
         error.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         error.setError(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
-        error.setMessage("Erro interno no servidor");
+        error.setMessage("Erro interno no servidor " + ex.getMessage());
         error.setPath(request.getRequestURI());
         error.setErrorCode("ERRO_INTERNO");
 
