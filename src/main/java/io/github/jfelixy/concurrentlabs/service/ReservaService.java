@@ -6,8 +6,7 @@ import io.github.jfelixy.concurrentlabs.domain.model.Professor;
 import io.github.jfelixy.concurrentlabs.domain.model.Reserva;
 import io.github.jfelixy.concurrentlabs.domain.model.enums.StatusReserva;
 import io.github.jfelixy.concurrentlabs.exceptions.CapacidadeExcedidaException;
-import io.github.jfelixy.concurrentlabs.exceptions.LabNotFound;
-import io.github.jfelixy.concurrentlabs.exceptions.ProfNotFound;
+import io.github.jfelixy.concurrentlabs.exceptions.RecursoNotFound;
 import io.github.jfelixy.concurrentlabs.repository.LaboratorioRepository;
 import io.github.jfelixy.concurrentlabs.repository.ProfessorRepository;
 import io.github.jfelixy.concurrentlabs.repository.ReservaRepository;
@@ -46,9 +45,9 @@ public class ReservaService {
     public Reserva criarReserva(Long laboratorioId, Long professorId, LocalDateTime dataHora) {
         /** Procura o laboratorio pelo id, se não achar, entra em exception**/
         Laboratorio lab = labRepository.findById(laboratorioId)
-                .orElseThrow(() -> new LabNotFound("Laboratorio não encontrado pelo id " + laboratorioId));
+                .orElseThrow(() -> new RecursoNotFound("Laboratorio não encontrado pelo id " + laboratorioId));
         /** Procura o Professor pelo id, se não achar, entra em exception**/
-        Professor prof = profRepository.findById(professorId).orElseThrow(() -> new ProfNotFound("Professor não encontrado pelo id " + professorId));
+        Professor prof = profRepository.findById(professorId).orElseThrow(() -> new RecursoNotFound("Professor não encontrado pelo id " + professorId));
 
         /** Operação atômica que, se existir semáforo para o laborátorio, retorna o existente. Se não, cria novo semáforo com capcidade = numero computadores**/
         Semaphore semaphore = semaphores.computeIfAbsent(laboratorioId,
