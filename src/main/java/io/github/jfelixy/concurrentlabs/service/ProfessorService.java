@@ -2,7 +2,6 @@ package io.github.jfelixy.concurrentlabs.service;
 
 import io.github.jfelixy.concurrentlabs.domain.model.Professor;
 import io.github.jfelixy.concurrentlabs.dto.request.ProfessorRequest;
-import io.github.jfelixy.concurrentlabs.exceptions.ProfNotFound;
 import io.github.jfelixy.concurrentlabs.exceptions.TeacherAlreadyEnrolledException;
 import io.github.jfelixy.concurrentlabs.repository.ProfessorRepository;
 import org.springframework.beans.factory.annotation.Autowired;

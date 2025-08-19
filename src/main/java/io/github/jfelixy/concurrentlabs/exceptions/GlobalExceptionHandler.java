@@ -24,4 +24,17 @@ public class GlobalExceptionHandler {
         error.setErrorCode("LAB_CAPACIDADE_EXCECIDA");
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
+
+    @ExceptionHandler(RecursoNotFound.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(RecursoNotFound ex, HttpServletRequest request){
+        ErrorResponse error = new ErrorResponse();
+        error.setTimestamp(LocalDateTime.now());
+        error.setStatus(HttpStatus.NOT_FOUND.value());
+        error.setError(HttpStatus.NOT_FOUND.getReasonPhrase());
+        error.setMessage(ex.getMessage());
+        error.setPath(request.getRequestURI());
+        error.setErrorCode("RECURSO_NAO_ENCONTRADO");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
 }

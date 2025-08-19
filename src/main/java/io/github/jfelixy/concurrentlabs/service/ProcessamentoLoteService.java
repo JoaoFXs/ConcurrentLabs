@@ -3,15 +3,11 @@ package io.github.jfelixy.concurrentlabs.service;
 
 import io.github.jfelixy.concurrentlabs.domain.model.Reserva;
 import io.github.jfelixy.concurrentlabs.domain.model.enums.StatusReserva;
-import io.github.jfelixy.concurrentlabs.exceptions.FalhaProcessamentoLoteException;
-import io.github.jfelixy.concurrentlabs.exceptions.ReservaNotFound;
+import io.github.jfelixy.concurrentlabs.exceptions.RecursoNotFound;
 import io.github.jfelixy.concurrentlabs.repository.ReservaRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,7 +70,7 @@ public class ProcessamentoLoteService {
         try {
             // Recarrega a reserva para evitar conflitos de versão
             Reserva reservaAtualizada = reservaRepository.findById(reserva.getId())
-                    .orElseThrow(() -> new ReservaNotFound("Reserva não encontrada"));
+                    .orElseThrow(() -> new RecursoNotFound("Reserva não encontrada"));
 
             reservaAtualizada.setStatus(StatusReserva.CONFIRMADA);
             reservaRepository.save(reservaAtualizada);
