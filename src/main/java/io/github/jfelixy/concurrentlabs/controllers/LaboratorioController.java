@@ -17,13 +17,13 @@ import java.net.URI;
 @RequestMapping("/lab")
 public class LaboratorioController {
 
-
     @Autowired
     private LaboratorioService labService;
     @PostMapping
-    private ResponseEntity<Laboratorio> criarLaboratorio(@RequestBody LaboratorioRequest laboratorioRequest){
-
-        return ResponseEntity.created(URI.create("/lab")).body(labService.criarLaboratorio(laboratorioRequest));
+    private ResponseEntity<LaboratorioResponse> criarLaboratorio(@RequestBody LaboratorioRequest laboratorioRequest){
+        
+        Laboratorio lab = labService.criarLaboratorio(laboratorioRequest);
+        return ResponseEntity.created(URI.create("/lab")).body(toResponse(lab));
 
     }
 

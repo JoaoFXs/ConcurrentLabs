@@ -13,8 +13,25 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: javatestesprojects@gmail.com
+    password: tcgg yntg rykj wjdc
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+          ssl:
+            trust: smtp.gmail.com
+app:
+  timeout-lote-segundos: 5
+fake:
+  requisitions:
+    url: "http://localhost:8080/professor"
 
-  fake:
-    requisitions:
-      urlEnvio: "http://localhost:8080/lab/generateLabs"
-      locale: "pt-BR"
