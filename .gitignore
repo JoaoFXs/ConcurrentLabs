@@ -1314,6 +1314,4 @@ data/pg_subtrans/0000
 data/pg_wal/000000010000000000000001
 data/pg_xact/0000
 src/main/resources/application.yml
-src/main/resources/application.yml
-src/main/resources/application.yml
-src/main/resources/application-test.properties
+
