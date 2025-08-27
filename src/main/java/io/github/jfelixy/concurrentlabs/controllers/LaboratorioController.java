@@ -4,6 +4,7 @@ import io.github.jfelixy.concurrentlabs.domain.model.Laboratorio;
 import io.github.jfelixy.concurrentlabs.dto.request.LaboratorioRequest;
 import io.github.jfelixy.concurrentlabs.dto.request.response.LaboratorioResponse;
 import io.github.jfelixy.concurrentlabs.service.LaboratorioService;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +20,8 @@ public class LaboratorioController {
 
     @Autowired
     private LaboratorioService labService;
+
+
     @PostMapping
     private ResponseEntity<LaboratorioResponse> criarLaboratorio(@RequestBody LaboratorioRequest laboratorioRequest){
         
