@@ -10,6 +10,9 @@ import io.github.jfelixy.concurrentlabs.exceptions.RecursoNotFound;
 import io.github.jfelixy.concurrentlabs.repository.LaboratorioRepository;
 import io.github.jfelixy.concurrentlabs.repository.ProfessorRepository;
 import io.github.jfelixy.concurrentlabs.repository.ReservaRepository;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
+
 
 @Service
 public class ReservaService {
@@ -41,6 +45,9 @@ public class ReservaService {
     @Autowired
     private ProcessamentoLoteService processamentoLoteService;
 
+    /** Instância para log */
+    private static final Logger logs = LoggerFactory.getLogger(ReservaService.class);
+
     @Transactional
     public Reserva criarReserva(Long laboratorioId, Long professorId, LocalDateTime dataHora) {
         /** Procura o laboratorio pelo id, se não achar, entra em exception**/
@@ -48,7 +55,8 @@ public class ReservaService {
                 .orElseThrow(() -> new RecursoNotFound("Laboratorio não encontrado pelo id " + laboratorioId));
         /** Procura o Professor pelo id, se não achar, entra em exception**/
         Professor prof = profRepository.findById(professorId).orElseThrow(() -> new RecursoNotFound("Professor não encontrado pelo id " + professorId));
-
+        logs.info("Iniciando reserva para professor {}, matricula: {}, para reserva ao laboratorio {}", prof.getNome(), prof.getMatricula(), lab.getNome());
+        logs.debug("ID do professor: {}, ID do laboratorio: {}", professorId, laboratorioId);
         /** Operação atômica que, se existir semáforo para o laborátorio, retorna o existente. Se não, cria novo semáforo com capcidade = numero computadores**/
         Semaphore semaphore = semaphores.computeIfAbsent(laboratorioId,
                 id -> new Semaphore(lab.getCapacidadeComputadores())
@@ -71,7 +79,7 @@ public class ReservaService {
                 Reserva reserva = reservaRepository.save(novaReserva);
                 /** Adicionar reserva no processamento de lote**/
                 processamentoLoteService.adicionarReservaLote(novaReserva);
-
+                logs.info("Reserva criada com sucesso! - ID da reserva {}", reserva.getId());
                 return reserva;
             } catch (Exception e) {
                 semaphore.release(); // Libera se falhar

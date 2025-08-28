@@ -6,12 +6,11 @@ import io.github.jfelixy.concurrentlabs.dto.request.response.ReservaResponse;
 import io.github.jfelixy.concurrentlabs.repository.ReservaRepository;
 import io.github.jfelixy.concurrentlabs.service.ReservaService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.time.LocalDateTime;
@@ -23,6 +22,7 @@ public class ReservaController {
     @Autowired
     private ReservaService reservaService;
 
+    private static final Logger logs = LoggerFactory.getLogger(ReservaController.class);
     /**
      * Endpoint responsável por criar uma nova reserva.
      *
@@ -37,12 +37,18 @@ public class ReservaController {
      * @param request objeto contendo os dados para criação da reserva (validação aplicada via Bean Validation).
      * @return {@link ResponseEntity} com status 201 e corpo contendo os dados da reserva criada.
      */
+
+    @GetMapping
+    public String home() {
+        logs.info("Acessando a página inicial.");
+        return "Bem-vindo!";
+    }
+
     @PostMapping
     public ResponseEntity criarReserva(@RequestBody @Valid ReservaRequest request){
         Reserva reserva = reservaService.criarReserva(request.laboratorioId(),
                                                       request.professorId(),
                                                       LocalDateTime.now());
-
         return ResponseEntity.created(URI.create("/reservas/" + reserva.getId())).body(toResponse(reserva));
     }
     /**
