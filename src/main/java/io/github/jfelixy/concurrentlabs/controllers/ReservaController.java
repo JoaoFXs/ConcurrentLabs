@@ -38,12 +38,6 @@ public class ReservaController {
      * @return {@link ResponseEntity} com status 201 e corpo contendo os dados da reserva criada.
      */
 
-    @GetMapping
-    public String home() {
-        logs.info("Acessando a página inicial.");
-        return "Bem-vindo!";
-    }
-
     @PostMapping
     public ResponseEntity criarReserva(@RequestBody @Valid ReservaRequest request){
         Reserva reserva = reservaService.criarReserva(request.laboratorioId(),

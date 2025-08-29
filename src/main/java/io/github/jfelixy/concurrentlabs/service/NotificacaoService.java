@@ -1,6 +1,8 @@
 package io.github.jfelixy.concurrentlabs.service;
 
 import io.github.jfelixy.concurrentlabs.domain.model.Reserva;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -12,6 +14,8 @@ import java.time.format.DateTimeFormatter;
 public class NotificacaoService {
 
     private final JavaMailSender mailSender;
+
+    private final Logger logs = LoggerFactory.getLogger(NotificacaoService.class);
 
     @Autowired
     public NotificacaoService(JavaMailSender mailSender) {
@@ -26,6 +30,8 @@ public class NotificacaoService {
         message.setSubject("Confirmação de Reserva - Laboratório " + reserva.getLaboratorio().getNome());
         /** Seta texto **/
         message.setText(gerarCorpoEmail(reserva));
+        logs.info("Email de confirmação da reserva {} enviado para {}", reserva.getId(), reserva.getProfessor().getEmail());
+        /** Envia email **/
         mailSender.send(message);
     }
 
