@@ -8,6 +8,8 @@ import io.github.jfelixy.concurrentlabs.exceptions.RecursoNotFound;
 import io.github.jfelixy.concurrentlabs.repository.ReservaRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -26,7 +28,8 @@ public class ProcessamentoLoteService {
     /** Tamanho do lote (5) e intervalo de processamento (30 segundos) **/
     private static final int TAMANHO_LOTE = 5;
     private static final int TIMEOUT_LOTE = 30; // segundos
-
+    /** Logs **/
+    private static final Logger logs = LoggerFactory.getLogger(ProcessamentoLoteService.class);
     @Autowired
     private ReservaRepository reservaRepository;
 
@@ -74,6 +77,7 @@ public class ProcessamentoLoteService {
                     .orElseThrow(() -> new RecursoNotFound("Reserva não encontrada"));
 
             reservaAtualizada.setStatus(StatusReserva.CONFIRMADA);
+            logs.info("Reserva ({}) com status: ({})", reservaAtualizada.getId(), reservaAtualizada.getStatus());
             reservaRepository.save(reservaAtualizada);
             notificacaoService.enviarConfirmacao(reservaAtualizada);
         } catch (FalhaProcessamentoLoteException e) {

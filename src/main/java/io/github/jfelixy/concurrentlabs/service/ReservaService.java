@@ -80,6 +80,7 @@ public class ReservaService {
                 /** Adicionar reserva no processamento de lote**/
                 processamentoLoteService.adicionarReservaLote(novaReserva);
                 logs.info("Reserva criada com sucesso! - ID da reserva {}", reserva.getId());
+                logs.info("Reserva ({}) com status: ({})", reserva.getId(), reserva.getStatus());
                 return reserva;
             } catch (Exception e) {
                 semaphore.release(); // Libera se falhar
