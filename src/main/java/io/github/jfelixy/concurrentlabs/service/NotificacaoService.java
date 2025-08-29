@@ -1,6 +1,8 @@
 package io.github.jfelixy.concurrentlabs.service;
 
 import io.github.jfelixy.concurrentlabs.domain.model.Reserva;
+import io.github.jfelixy.concurrentlabs.exceptions.SendEmailFailedException;
+import jakarta.mail.SendFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +34,12 @@ public class NotificacaoService {
         message.setText(gerarCorpoEmail(reserva));
         logs.info("Email de confirmação da reserva {} enviado para {}", reserva.getId(), reserva.getProfessor().getEmail());
         /** Envia email **/
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+        } catch (SendEmailFailedException e) {
+            logs.error("Erro ao enviar email de confirmação da reserva {}: {}", reserva.getId(), e.getMessage());
+            throw new SendEmailFailedException("Erro ao enviar email de confirmação da reserva" + reserva.getId() + ":" + e.getMessage());
+        }
     }
 
     private String gerarCorpoEmail(Reserva reserva) {

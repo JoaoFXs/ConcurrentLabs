@@ -28,7 +28,7 @@ public class ProcessamentoLoteService {
     /** Tamanho do lote (5) e intervalo de processamento (30 segundos) **/
     private static final int TAMANHO_LOTE = 5;
     private static final int TIMEOUT_LOTE = 30; // segundos
-
+    /** Logs **/
     private static final Logger logs = LoggerFactory.getLogger(ProcessamentoLoteService.class);
     @Autowired
     private ReservaRepository reservaRepository;
