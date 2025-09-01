@@ -1,155 +1,223 @@
-# ConcurrentLabs
+# 🚀 ConcurrentLabs
 
-ConcurrentLabs é um sistema back-end desenvolvido em Java com Spring Boot para o gerenciamento de reservas de laboratórios de informática. A aplicação foi projetada para lidar com alta concorrência, garantindo controle de acesso a recursos limitados e processando confirmações de forma assíncrona e resiliente.
+> Sistema back-end em **Java + Spring Boot** para gerenciamento de reservas de laboratórios de informática, com **alta concorrência**, **processamento assíncrono em lote** e **notificações automáticas por e-mail**.
 
-O sistema utiliza java.util.concurrent.Semaphore para o controle de acesso imediato aos computadores e um sistema de processamento em lote (batch processing) para confirmar e notificar as reservas, garantindo que a aplicação permaneça responsiva sob carga.
+<p align="center">
+  <img src="https://img.shields.io/badge/Spring%20Boot-3.5.4-6DB33F?logo=springboot" />
+  <img src="https://img.shields.io/badge/Spring%20Data%20JPA-3.5.4-6DB33F?logo=spring" />
+  <img src="https://img.shields.io/badge/Spring%20Validation-3.5.4-6DB33F?logo=spring" />
+  <img src="https://img.shields.io/badge/Spring%20Web-3.5.4-6DB33F?logo=spring" />
+  <img src="https://img.shields.io/badge/Spring%20Mail-3.5.4-6DB33F?logo=spring" />
+  <img src="https://img.shields.io/badge/Spring%20Actuator-3.5.4-6DB33F?logo=spring" />
+  <img src="https://img.shields.io/badge/H2-Database-blue?logo=h2" />
+  <img src="https://img.shields.io/badge/PostgreSQL-Database-4169E1?logo=postgresql" />
+  <img src="https://img.shields.io/badge/Lombok-Enabled-green?logo=java" />
+  <img src="https://img.shields.io/badge/Logstash%20Encoder-7.4-FF6600?logo=logstash" />
+  <img src="https://img.shields.io/badge/Spring%20Boot-Test-6DB33F?logo=spring" />
+  <img src="https://img.shields.io/badge/Fake%20Requisitions-0.1.9-blueviolet" />
+</p>
 
-## Arquitetura e Fluxo de uma Reserva
+---
 
-O processo de criação de uma reserva é dividido em duas fases principais: solicitação síncrona e confirmação assíncrona. Isso garante que o usuário receba uma resposta rápida enquanto as tarefas mais pesadas são executadas em segundo plano.
+## 🧭 Sumário
 
-## Funcionalidades principais
+- [Visão Geral](#-visão-geral)
+- [Arquitetura e Fluxo](#-arquitetura-e-fluxo)
+- [Funcionalidades](#-funcionalidades)
+- [Componentes Técnicos](#-componentes-técnicos)
+- [Como Executar](#-como-executar)
+   - [Pré-requisitos](#-pré-requisitos)
+   - [Configuração](#-configuração)
+   - [Execução](#-execução)
+- [Exemplos de API](#-exemplos-de-api)
+- [Dados de Teste (FakeRequisitions)](#-dados-de-teste-fakerequisitions)
+- [Roadmap](#-roadmap)
+- [Contribuição](#-contribuição)
+- [Licença](#-licença)
 
-* Controle de Concorrência por Recurso: Cada laboratório possui seu próprio Semaphore, garantindo que o controle de capacidade seja granular e eficiente.
+---
 
-* Feedback Imediato: O uso de Semaphore.tryAcquire() permite que o sistema dê uma resposta instantânea (sucesso ou falha por capacidade) ao usuário, sem bloquear a thread da requisição.
+## 🔎 Visão Geral
 
-* Processamento Assíncrono em Lote: As reservas são confirmadas em lotes para otimizar operações de banco de dados e notificações.
+ConcurrentLabs é um sistema em **Java 17** com **Spring Boot** para **gerenciamento de reservas de laboratórios de informática**.  
+A aplicação foi projetada para **alta concorrência**, com:
 
-* Mecanismo de Gatilho Híbrido: O processamento de lotes é acionado por duas condições:
+- Controle de acesso imediato via `java.util.concurrent.Semaphore`;
+- **Processamento assíncrono em lote** para confirmação das reservas;
+- **Notificações por e-mail** aos professores quando a reserva é confirmada;
+- Observabilidade com **Spring Actuator** e logs estruturados com **Logstash Encoder**.
 
-  1. Tamanho: Quando 5 reservas se acumulam na fila.
+---
 
-  2. Tempo: A cada 30 segundos, para processar reservas remanescentes e evitar que fiquem "esquecidas".
+## 🏗️ Arquitetura e Fluxo
 
-* Transações Isoladas: Cada reserva dentro de um lote é processada em sua própria transação (Propagation.REQUIRES_NEW), garantindo que a falha de uma não afete as outras.
+O fluxo da reserva ocorre em **duas fases**:
 
-* Notificação por Email: Professores são notificados por email quando suas reservas são confirmadas, realizadas através do org.springframework.mail.javamail.JavaMailSender.
+1. **Solicitação síncrona (rápida)**
+   - `Semaphore.tryAcquire()` retorna imediatamente **sucesso** (enfileira a reserva como `PENDENTE`) ou **falha** (capacidade esgotada).
 
+2. **Confirmação assíncrona (em lote)**
+   - Um **Scheduler** consome uma fila e **confirma as reservas em lotes**, enviando e-mail de notificação.
 
-## Componentes e Conceitos Técnicos
+**Gatilhos do processamento em lote:**
+- 📌 **Tamanho**: quando **5 reservas** se acumulam na fila;
+- ⏰ **Tempo**: a cada **30 segundos**, para evitar pedidos “encalhados”.
 
-1. ReservaService (O Porteiro)
-Responsabilidade: Ponto de entrada para novas reservas. Valida os dados e gerencia o acesso concorrente.
+Cada confirmação roda em **transação isolada** (`REQUIRES_NEW`) para que falhas não afetem o lote inteiro.
 
-    * Técnica: Utiliza um ConcurrentHashMap<Long, Semaphore> para manter um semáforo para cada laboratório. A operação computeIfAbsent garante a criação thread-safe de novos semáforos conforme necessário.
-    * Fluxo:
+---
 
-        1. Recebe a requisição de reserva.
+## ✅ Funcionalidades
 
-        2. Tenta adquirir (tryAcquire()) um "lugar" no semáforo do laboratório.
+- **Controle de Concorrência por Laboratório** com `Semaphore` por recurso.
+- **Feedback Imediato** ao usuário (aceita/enfileira ou rejeita por capacidade).
+- **Processamento Assíncrono em Lote** com `ScheduledExecutorService`.
+- **Transações Isoladas** para robustez.
+- **Notificação por E-mail** via `JavaMailSender`.
+- **Logs Estruturados** prontos para observabilidade (Logstash).
+- **Perfis de Banco**: H2 (memória) e PostgreSQL.
 
-        3. Se bem-sucedido, cria a Reserva com status PENDENTE e a enfileira no ProcessamentoLoteService.
+---
 
-        4. Se falhar, lança uma CapacidadeExcedidaException, resultando em uma resposta de erro imediata ao usuário.
-      
-2. ProcessamentoLoteService (A Linha de Montagem)
-   Responsabilidade: Orquestrar a confirmação das reservas de forma assíncrona e otimizada.
+## ⚙️ Componentes Técnicos
 
-    * Técnica: Implementa o padrão Produtor-Consumidor.
-        1. Produtor: ReservaService adiciona reservas na fila.
-        2. Consumidor: Um ScheduledExecutorService consome da fila periodicamente.
+1. **ReservaService** 🛂
+   - Ponto de entrada de novas reservas.
+   - Mantém `ConcurrentHashMap<Long, Semaphore>` por laboratório.
+   - Fluxo:
+      1. Recebe a requisição;
+      2. `tryAcquire()` no semáforo do laboratório;
+      3. Em caso de sucesso, cria `Reserva` com status **PENDENTE** e enfileira;
+      4. Em caso de falha, lança `CapacidadeExcedidaException`.
 
-    * Estrutura:
-        1. BlockingQueue<Reserva>: Fila segura para a comunicação entre threads.
-        2. ScheduledExecutorService: Agenda a execução do processamento em intervalos fixos.
-        3. @Transactional(propagation = Propagation.REQUIRES_NEW): Garante que cada confirmação de reserva seja atômica e independente.
+2. **ProcessamentoLoteService** 🔄
+   - Padrão **Produtor–Consumidor**: fila (`BlockingQueue`) + `ScheduledExecutorService`.
+   - Confirma em lote e envia notificações.
+   - `@Transactional(propagation = REQUIRES_NEW)` por item.
 
-3. NotificacaoService (O Mensageiro)
-   
-    * Responsabilidade: Enviar notificações de confirmação para os professores.
-    * Técnica: Abstrai a lógica de envio de emails utilizando o JavaMailSender do Spring. Formata uma mensagem clara e informativa para o usuário final.
+3. **NotificacaoService** 📧
+   - Envio de e-mails de confirmação para professores.
+   - Abstrai `JavaMailSender` com templates simples e mensagens claras.
 
-## Como Executar o Projeto
+---
 
-### Pré Requisitos
-* Java Development Kit (JDK) 17 ou superior.
-* Maven 3x ou superior.
-* Um servidor SMTP (como o do Gmail, SendGrid, ou um local como o MailHog) para o envio de emails.
+## ▶️ Como Executar
 
-### Configuração
-1. Clone o repositório:
-```git
-   git clone https://github.com/seu-usuario/ConcurrentLabs.git
-   cd ConcurrentLabs
+### 📌 Pré-requisitos
+- **Java 17+**
+- **Maven 3+**
+- **SMTP** (Gmail, SendGrid, MailHog etc.)
+
+### 📌 Configuração
+
+1) **Clone o repositório**
+```bash
+git clone https://github.com/seu-usuario/ConcurrentLabs.git
+cd ConcurrentLabs
 ```
-2. Configure o application.yml ou application.properties:
-   Localizado em src/main/resources/application.properties, configure o acesso ao banco de dados e as credenciais do seu servidor de email.
-```yml
-# Configuração do Banco de Dados (Ex: H2, PostgreSQL)
+2) Ajuste o application.yml ou application.properties em src/main/resources:
+```
+# --- Banco de Dados (ex.: H2 em memória) ---
 spring.datasource.url=jdbc:h2:mem:testdb
 spring.datasource.driverClassName=org.h2.Driver
 spring.datasource.username=user
 spring.datasource.password=password
 spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.h2.console.enabled=true
 
-# Configuração do Servidor de Email
+# --- E-mail ---
 spring.mail.host=smtp.example.com
 spring.mail.port=587
 spring.mail.username=seu-email@example.com
 spring.mail.password=sua-senha
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
-```
 
-### Execução
-Utilize o Maven Wrapper para compilar e executar a aplicação:
+# --- Atuator (opcional) ---
+management.endpoints.web.exposure.include=health,info,metrics
+```
+Para PostgreSQL, ajuste spring.datasource.url, username, password e o dialect correspondente.
+
+--- 
+
+### ▶️ Execução
 
 ```bash
+# Executar com Maven Wrapper
 ./mvnw spring-boot:run
 ```
 
-## Endpoints da API (Exemplo)
-### Request
-1. Criar uma nova reserva
-   * URL: POST /api/reservas
-   * Headers: Content-Type: application/json
-   * Corpo da Requisição (JSON):
-
-``` json
-
+## 📡 Exemplos de API
+### **Criar Reserva**
+- **POST** /api/reservas
+- **Headers:** Content-Type: application/json
+```json
 {
-   "laboratorioId": 1,
-   "professorId": 101,
-   "dataHora": "2025-10-15T14:00:00"
+  "laboratorioId": 1,
+  "professorId": 101,
+  "dataHora": "2025-10-15T14:00:00"
 }
 ```
-### Respostas Possíveis:
 
-* 201 Created: Reserva aceita e enfileirada para processamento.
-
-``` json
+### **Respostas**
+- 201 Created
+```json
 {
-    "id": 44,
-    "laboratorioNome": "Math",
-    "professorNome": "Eduardo",
-    "dataHora": "2025-08-28T21:44:42.3290415",
-    "status": "PENDENTE"
+   "id": 44,
+   "laboratorioNome": "Math",
+   "professorNome": "Eduardo",
+   "dataHora": "2025-08-28T21:44:42.3290415",
+   "status": "PENDENTE"
 }
-``` 
-* 409 Conflict: Não há computadores disponíveis no momento.
+```
+- 409 Conflict: Não há computadores disponíveis no momento.
 
-``` json
-{
-    "timestamp": "2025-08-28T21:45:25.7759378",
-    "status": 409,
-    "error": "Conflict",
-    "message": "Capacidade 6 laborátorio excedida, não há computadores disponiveis. Tente novamente mais tarde!",
-    "path": "/reservas",
-    "errorCode": "LAB_CAPACIDADE_EXCECIDA",
-    "details": null
-}
-``` 
-* 404 Not Found: Laboratório ou professor não encontrado.
+```json
+  {
+  "timestamp": "2025-08-28T21:45:25.7759378",
+  "status": 409,
+  "error": "Conflict",
+  "message": "Capacidade 6 laborátorio excedida, não há computadores disponiveis. Tente novamente mais tarde!",
+  "path": "/reservas",
+  "errorCode": "LAB_CAPACIDADE_EXCECIDA",
+  "details": null
+  }
+ ```
+- 404 Not Found: Laboratório ou professor não encontrado.
+```json
+  {
+  "timestamp": "2025-08-28T21:45:54.5706885",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Professor não encontrado pelo id 489",
+  "path": "/reservas",
+  "errorCode": "RECURSO_NAO_ENCONTRADO",
+  "details": null
+  }
+ ```
 
-``` json
-{
-    "timestamp": "2025-08-28T21:45:54.5706885",
-    "status": 404,
-    "error": "Not Found",
-    "message": "Professor não encontrado pelo id 489",
-    "path": "/reservas",
-    "errorCode": "RECURSO_NAO_ENCONTRADO",
-    "details": null
-}
-``` 
+## 🧪 Dados de Teste (FakeRequisitions)
+
+Para facilitar testes, debugging e demos, o projeto inclui um controlador para popular o banco com
+dados falsos usando FakeRequisitions . Ele gera múltiplos JSONs aleatórios e envia POSTs para os 
+próprios endpoints (ex.: /professores, /laboratorios), automatizando o cadastro. Há dois endpoints 
+GET de conveniência — edite os campos conforme suas necessidades de teste. ``` generate/generateLabs```,
+``` generate/generateProfessor```.
+
+## 🗺️ Roadmap
+- Expor métricas customizadas no Actuator (reservas por minuto, fila, tempo médio).
+- Feature flags para alternar entre confirmação imediata vs. em lote.
+- Documentação OpenAPI/Swagger UI.
+- Estratégias de retry/backoff para e-mail.
+- Cache para consultas de disponibilidade.
+
+## 🤝 Contribuição
+
+- Contribuições são bem-vindas!
+- Abra uma issue para bugs/idéias.
+- Envie um pull request com descrição clara e testes relevantes.
+
+
+### License
+
+[MIT](LICENSE) © JoaoFXs
