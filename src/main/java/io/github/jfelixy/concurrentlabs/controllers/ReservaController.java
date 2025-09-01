@@ -45,6 +45,13 @@ public class ReservaController {
                                                       LocalDateTime.now());
         return ResponseEntity.created(URI.create("/reservas/" + reserva.getId())).body(toResponse(reserva));
     }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity deletarReserva(@PathVariable Long id){
+        reservaService.deleteReservaById(id);
+        return ResponseEntity.noContent().build();
+    }
     /**
      * Converte uma entidade {@link Reserva} para um objeto {@link ReservaResponse}.
      * Extrai os dados relevantes da entidade de reserva, como:
@@ -56,6 +63,7 @@ public class ReservaController {
      * @param reserva entidade {@link Reserva} a ser convertida.
      * @return instância de {@link ReservaResponse} com os dados mapeados.
      */
+
     public ReservaResponse toResponse(Reserva reserva){
         return new ReservaResponse(
                 reserva.getId(),
