@@ -2,6 +2,10 @@ package io.github.jfelixy.concurrentlabs.controllers;
 
 
 import io.github.joaofxs.fake_requisitions.bean.FakeRequisitions;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +20,7 @@ import java.util.function.Supplier;
 
 @RestController
 @RequestMapping("/generate")
+@Tag(name = "Geradores", description = "Endpoints para geração dinâmica de Professores e Laboratorios")
 public class GenerateJsonsController {
     private  final FakeRequisitions fakeRequisitions;
 
@@ -26,6 +31,8 @@ public class GenerateJsonsController {
     }
 
     @PostMapping("/generateLabs")
+    @Operation(description = "Gerador de Laboratorios", summary = "Gerador de Laboratorios")
+    @ApiResponse(responseCode = "200", description = "Laboratórios gerados com sucesso")
     public ResponseEntity<List<String>> generateValues() throws Exception {
         Map<String, Supplier<Object>> fields = new HashMap<>();
         fields.put("nome", () -> fakeRequisitions.job().field());
@@ -34,6 +41,8 @@ public class GenerateJsonsController {
     }
 
     @PostMapping("/generateProfessor")
+    @Operation(summary = "Gerador de Professores", description = "Gerador de Professores")
+    @ApiResponse(responseCode = "200", description = "Professores gerados com Sucesso")
     public ResponseEntity<List<String>> generateProfessor() throws Exception {
         Map<String, Supplier<Object>> fields = new HashMap<>();
         fields.put("nome", () -> fakeRequisitions.name().firstName());
