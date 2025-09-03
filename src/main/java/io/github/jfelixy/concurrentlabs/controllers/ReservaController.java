@@ -7,6 +7,7 @@ import io.github.jfelixy.concurrentlabs.exceptions.ErrorResponse;
 import io.github.jfelixy.concurrentlabs.repository.ReservaRepository;
 import io.github.jfelixy.concurrentlabs.service.ReservaService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,6 +17,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,7 +54,8 @@ public class ReservaController {
             @ApiResponse(responseCode = "200", description = "Reserva criada com sucesso", content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ReservaResponse.class)) }),
             @ApiResponse(responseCode = "404,500,400", description = "Falha na criação da reserva", content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}) })
     public ResponseEntity criarReserva(@RequestBody @Valid ReservaRequest request){
-        Reserva reserva = reservaService.criarReserva(request.laboratorioId(),
+        Reserva reserva = reservaService.criarReserva(
+                                                      request.laboratorioId(),
                                                       request.professorId(),
                                                       LocalDateTime.now());
         return ResponseEntity.created(URI.create("/reservas/" + reserva.getId())).body(toResponse(reserva));
@@ -62,7 +65,8 @@ public class ReservaController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Deletar Reserva", description = "Deletar reserva por id")
     @ApiResponse(responseCode = "204", description = "Reserva deletada com sucesso", content = { @Content(mediaType = "application/json") })
-    public ResponseEntity deletarReserva(@PathVariable Long id){
+    public ResponseEntity deletarReserva(@Parameter(description = "ID da reserva a ser deletada", required = true)
+                                            @PathVariable Long id){
         reservaService.deleteReservaById(id);
         return ResponseEntity.noContent().build();
     }
