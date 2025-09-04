@@ -25,12 +25,15 @@ public class Laboratorio {
 
     private int capacidadeComputadores; // Máx. computadores disponíveis
 
-    @OneToMany(mappedBy = "laboratorio")
+    @OneToMany(mappedBy = "laboratorio", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reserva> reservas;
 
     public Laboratorio(String nome, int capacidadeComputadores) {
         this.nome = nome;
         this.capacidadeComputadores = capacidadeComputadores;
     }
-
+    public void removeReserva(Reserva reserva) {
+        reservas.remove(reserva);
+        reserva.setLaboratorio(null);
+    }
 }

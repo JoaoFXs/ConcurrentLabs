@@ -30,4 +30,6 @@ public class Reserva {
 
     private StatusReserva status;// PENDENTE, CONFIRMADO, CANCELADA
 
+
+
 }

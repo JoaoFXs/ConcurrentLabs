@@ -3,12 +3,21 @@ package io.github.jfelixy.concurrentlabs.controllers;
 import io.github.jfelixy.concurrentlabs.domain.model.Reserva;
 import io.github.jfelixy.concurrentlabs.dto.request.ReservaRequest;
 import io.github.jfelixy.concurrentlabs.dto.request.response.ReservaResponse;
+import io.github.jfelixy.concurrentlabs.exceptions.ErrorResponse;
 import io.github.jfelixy.concurrentlabs.repository.ReservaRepository;
 import io.github.jfelixy.concurrentlabs.service.ReservaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +26,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/reservas")
+@Tag(name = "Reserva", description = "Endpoints para gerenciamento de reservas de laboratórios")
 public class ReservaController {
     /** Reserva serv **/
     @Autowired
@@ -39,11 +49,26 @@ public class ReservaController {
      */
 
     @PostMapping
+    @Operation(summary = "Cria reserva", description = "Cria reserva a partir de um laboratorio e um professor")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Reserva criada com sucesso", content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ReservaResponse.class)) }),
+            @ApiResponse(responseCode = "404,500,400", description = "Falha na criação da reserva", content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}) })
     public ResponseEntity criarReserva(@RequestBody @Valid ReservaRequest request){
-        Reserva reserva = reservaService.criarReserva(request.laboratorioId(),
+        Reserva reserva = reservaService.criarReserva(
+                                                      request.laboratorioId(),
                                                       request.professorId(),
                                                       LocalDateTime.now());
         return ResponseEntity.created(URI.create("/reservas/" + reserva.getId())).body(toResponse(reserva));
+    }
+
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Deletar Reserva", description = "Deletar reserva por id")
+    @ApiResponse(responseCode = "204", description = "Reserva deletada com sucesso", content = { @Content(mediaType = "application/json") })
+    public ResponseEntity deletarReserva(@Parameter(description = "ID da reserva a ser deletada", required = true)
+                                            @PathVariable Long id){
+        reservaService.deleteReservaById(id);
+        return ResponseEntity.noContent().build();
     }
     /**
      * Converte uma entidade {@link Reserva} para um objeto {@link ReservaResponse}.
@@ -56,6 +81,7 @@ public class ReservaController {
      * @param reserva entidade {@link Reserva} a ser convertida.
      * @return instância de {@link ReservaResponse} com os dados mapeados.
      */
+
     public ReservaResponse toResponse(Reserva reserva){
         return new ReservaResponse(
                 reserva.getId(),

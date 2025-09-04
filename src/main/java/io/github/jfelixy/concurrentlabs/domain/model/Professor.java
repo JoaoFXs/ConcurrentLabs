@@ -29,8 +29,11 @@ public class Professor {
     private String email;
     private String matricula;
 
-    @OneToMany(mappedBy = "professor")
+    @OneToMany(mappedBy = "professor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reserva> reservas;
 
-
+    public void removeReserva(Reserva reserva) {
+        reservas.remove(reserva);
+        reserva.setProfessor(null);
+    }
 }

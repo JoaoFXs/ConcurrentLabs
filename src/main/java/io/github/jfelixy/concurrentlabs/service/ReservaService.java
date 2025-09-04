@@ -23,6 +23,7 @@ import java.util.concurrent.Semaphore;
 
 
 @Service
+@Transactional
 public class ReservaService {
 
     /**
@@ -89,6 +90,19 @@ public class ReservaService {
         } else {
             throw new CapacidadeExcedidaException("Capacidade de" + lab.getCapacidadeComputadores() + "do laborátorio excedida, não há computadores disponiveis. Tente novamente mais tarde!");
         }
+    }
+
+    @Transactional
+    public void deleteReservaById(Long id) {
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reserva não encontrada"));
+        Professor prof = reserva.getProfessor();
+        Laboratorio lab = reserva.getLaboratorio();
+        // remove a reserva das coleções
+        prof.removeReserva(reserva);
+        lab.removeReserva(reserva);
+        // não precisa chamar reservaRepository.delete(reserva),pois o orphanRemoval já faz isso
+
     }
 
 
